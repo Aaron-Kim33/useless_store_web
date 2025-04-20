@@ -1,49 +1,76 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import axios from "axios";
 
 const Signup = () => {
-  const [formData, setFormData] = useState({
+  const [form, setForm] = useState({
     username: "",
     email: "",
     password: "",
   });
+  const [message, setMessage] = useState("");
 
+  // 입력값 변경 핸들러
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  // 폼 제출 핸들러
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post(
+      // 서버 주소는 본인 백엔드 API 주소로 바꿔주세요!
+      const res = await axios.post(
         "http://localhost:5000/api/auth/register",
-        formData
+        form
       );
-      console.log("회원가입 성공:", response.data);
-      // 성공 시 로그인 페이지로 이동
-    } catch (error) {
-      console.error("회원가입 실패:", error.response.data);
+      setMessage("회원가입 성공! 🎉");
+      setForm({ username: "", email: "", password: "" });
+    } catch (err) {
+      setMessage(err.response?.data?.message || "회원가입 실패");
     }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input
-        type="text"
-        name="username"
-        placeholder="이름"
-        onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-      />
-      <input
-        type="email"
-        name="email"
-        placeholder="이메일"
-        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-      />
-      <input
-        type="password"
-        name="password"
-        placeholder="비밀번호"
-        onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-      />
-      <button type="submit">가입하기</button>
-    </form>
+    <div className="max-w-md mx-auto mt-10 p-6 border rounded shadow">
+      <h2 className="text-2xl font-bold mb-4">회원가입</h2>
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <input
+          name="username"
+          placeholder="이름"
+          value={form.username}
+          onChange={handleChange}
+          required
+          className="border rounded px-3 py-2"
+        />
+        <input
+          name="email"
+          type="email"
+          placeholder="이메일"
+          value={form.email}
+          onChange={handleChange}
+          required
+          className="border rounded px-3 py-2"
+        />
+        <input
+          name="password"
+          type="password"
+          placeholder="비밀번호"
+          value={form.password}
+          onChange={handleChange}
+          required
+          className="border rounded px-3 py-2"
+        />
+        <button
+          type="submit"
+          className="bg-blue-500 text-white py-2 rounded hover:bg-blue-600"
+        >
+          회원가입
+        </button>
+      </form>
+      {message && (
+        <div className="mt-4 text-center text-red-500">{message}</div>
+      )}
+    </div>
   );
 };
 
